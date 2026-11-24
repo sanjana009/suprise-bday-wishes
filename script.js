@@ -21,7 +21,7 @@
   var AC = null, master = null, hg = null, og = null, snd = true, unlocked = false;
   function ac() {
     if (!unlocked || !snd) return null;
-    if (!AC) { var C = window.AudioContext || window.webkitAudioContext; if (!C) return null; AC = new C(); master = AC.createGain(); master.gain.value = 0.55; master.connect(AC.destination); hum(); }
+    if (!AC) { var C = window.AudioContext || window.webkitAudioContext; if (!C) return null; AC = new C(); master = AC.createGain(); master.gain.value = 1; master.connect(AC.destination); hum(); }
     if (AC.state === "suspended") AC.resume();
     return AC;
   }
@@ -32,11 +32,11 @@
     hg = AC.createGain(); hg.gain.value = 0;
     var lf = AC.createOscillator(); lf.frequency.value = 18; var lg = AC.createGain(); lg.gain.value = 0.02; lf.connect(lg); lg.connect(hg.gain);
     n.connect(f); f.connect(hg); hg.connect(master);
-    var o = AC.createOscillator(); o.type = "sawtooth"; o.frequency.value = 50;
-    var of = AC.createBiquadFilter(); of.type = "lowpass"; of.frequency.value = 180; og = AC.createGain(); og.gain.value = 0;
+    var o = AC.createOscillator(); o.type = "sawtooth"; o.frequency.value = 110;
+    var of = AC.createBiquadFilter(); of.type = "lowpass"; of.frequency.value = 450; og = AC.createGain(); og.gain.value = 0;
     o.connect(of); of.connect(og); og.connect(master); n.start(); lf.start(); o.start(); setHum(playing);
   }
-  function setHum(on) { if (!AC || !hg) return; var t = AC.currentTime; hg.gain.setTargetAtTime(on ? 0.03 : 0, t, 0.25); og.gain.setTargetAtTime(on ? 0.02 : 0, t, 0.25); }
+  function setHum(on) { if (!AC || !hg) return; var t = AC.currentTime; hg.gain.setTargetAtTime(on ? 0.07 : 0, t, 0.25); og.gain.setTargetAtTime(on ? 0.05 : 0, t, 0.25); }
   function tone(f, d, type, v) {
     var a = ac(); if (!a) return; var o = a.createOscillator(), g = a.createGain(), t = a.currentTime;
     o.type = type || "sine"; o.frequency.value = f; g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.001, t + d);
@@ -47,17 +47,11 @@
     s.buffer = nz(); f.type = "highpass"; f.frequency.value = hp || 1500; g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
     s.connect(f); f.connect(g); g.connect(master); s.start(t, Math.random() * 0.5, 0.06);
   }
-  function thunk() { tone(70, 0.18, "sine", 0.5); click(0.35, 800); }
-  function key() { click(0.25, 2500); tone(180, 0.03, "square", 0.03); }
-  function tick() { tone(1000, 0.07, "square", 0.06); click(0.15, 3000); }
-  function bell() { tone(1568, 0.9, "sine", 0.12); tone(2093, 0.7, "sine", 0.06); }
-  function sndIcon() {
-    $("snd").innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12"><path d="M3 9v6h4l5 4V5L7 9z"/>' + (snd
-      ? '<path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" stroke="#f1e4c8" fill="none" stroke-width="2" stroke-linecap="round"/>'
-      : '<path d="M16 9l5 6M21 9l-5 6" stroke="#f1e4c8" fill="none" stroke-width="2" stroke-linecap="round"/>') + '</svg>';
-  }
-
-  var view = $("view"), prev = $("prev"), next = $("next"), playBtn = $("play"), ruler = $("ruler"), cp = $("cp"), cn = $("cn");
+  function thunk() { tone(120, 0.2, "sine", 0.7); click(0.7, 500); }
+  function key() { click(0.5, 1800); tone(300, 0.04, "square", 0.06); }
+  function tick() { tone(1000, 0.09, "square", 0.14); click(0.3, 2500); }
+  function bell() { tone(1568, 1.1, "sine", 0.3); tone(2093, 0.9, "sine", 0.15); }
+  var view = $("view"), ruler = $("ruler"), cp = $("cp"), cn = $("cn");
 
   var d = "", q;
   for (q = 0; q < 36; q++) d += '<i style="--x:' + (Math.random() * 100).toFixed(1) + '%;--s:' + (2 + Math.random() * 3).toFixed(1) + 'px;--o:' + (0.3 + Math.random() * 0.6).toFixed(2) + ';--dx:' + (Math.random() * 40 - 20).toFixed(0) + 'px;--t:' + (9 + Math.random() * 9).toFixed(1) + 's;--dl:-' + (Math.random() * 12).toFixed(1) + 's"></i>';
@@ -71,7 +65,7 @@
     for (j = 0; j < ticks.length; j++) ticks[j].className = (j % 10 === 0 ? "t " : "") + (j === pos ? "now" : j < pos ? "on" : "");
   }
 
-  var tm = [], timer = null, cur = -1, playing = true;
+  var tm = [], cur = -1, playing = true;
   function T(fn, ms) { tm.push(setTimeout(fn, ms)); }
   function clearT() { tm.forEach(clearTimeout); tm = []; }
 
@@ -141,7 +135,7 @@
   }
   function caption(n) {
     var s = S[n];
-    cp.textContent = s.t === "title" ? "Tap to see the next one" : s.t === "count" ? "Count with us" : s.t === "photo" ? (s.p.caption || "") : s.t === "wish" ? "With love" : "The End";
+    cp.textContent = s.t === "title" ? "Tap to begin. Tap the left edge to go back." : s.t === "count" ? "Count with us" : s.t === "photo" ? (s.p.caption || "") : s.t === "wish" ? "Read slowly. Tap when you are ready." : "The End";
     cn.textContent = (n + 1) + " of " + N;
   }
   var TR = ["iris", "wipe", "roll", "burn", "zoom"], tc = 0;
@@ -164,26 +158,11 @@
     }
     if (t === "end") T(bell, 3600);
   }
-  function dur(n) {
-    var s = S[n];
-    return s.t === "title" ? 6000 : s.t === "count" ? 8800 : s.t === "wish" ? 6500 + s.w.length * 60 : 6800;
-  }
-  function schedule(delay) {
-    clearTimeout(timer);
-    if (playing && cur < LAST) timer = setTimeout(function () { go(cur + 1); }, delay == null ? dur(cur) : delay);
-  }
-  function icon() {
-    $("proj").classList.toggle("off", !playing); setHum(playing);
-    playBtn.innerHTML = playing
-      ? '<svg viewBox="0 0 24 24" width="11" height="11"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>'
-      : '<svg viewBox="0 0 24 24" width="11" height="11"><path d="M7 4l13 8-13 8z"/></svg>';
-  }
+  function icon() { $("proj").classList.toggle("off", !playing); setHum(playing); }
   function go(n) {
     if (n < 0 || n > LAST || n === cur) return;
     clearT(); cur = n; show(n); caption(n); mark(n);
-    prev.disabled = n <= 0; next.disabled = n >= LAST;
     if (n === LAST) { playing = false; icon(); }
-    schedule();
   }
 
   var scr = $("scr");
@@ -194,22 +173,29 @@
     scr.appendChild(e); setTimeout(function () { e.remove(); }, 60 + Math.random() * 200);
   }
   if (!RM) setInterval(function () { if (Math.random() < 0.7) speck(); }, 260);
-  function unlock() { if (unlocked) return; unlocked = true; ac(); setHum(playing); }
-  ["click", "touchend", "keydown"].forEach(function (e) { document.addEventListener(e, unlock); });
-  $("snd").addEventListener("click", function () {
-    snd = !snd; sndIcon();
-    if (master) master.gain.setTargetAtTime(snd ? 0.55 : 0, AC.currentTime, 0.05);
-    if (snd) { unlocked = true; ac(); setHum(playing); }
-  });
-  sndIcon(); icon(); go(0);
-  prev.addEventListener("click", function () { go(cur - 1); });
-  next.addEventListener("click", function () { go(cur + 1); });
-  playBtn.addEventListener("click", function () {
-    if (cur === LAST) return;
-    playing = !playing; icon(); schedule(playing ? 1200 : null);
-  });
+  var keep = null;
+  function silentWav() {
+    var n = 8000, buf = new ArrayBuffer(44 + n), v = new DataView(buf), i;
+    function w(o, t) { for (var k = 0; k < t.length; k++) v.setUint8(o + k, t.charCodeAt(k)); }
+    w(0, "RIFF"); v.setUint32(4, 36 + n, true); w(8, "WAVEfmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, "data"); v.setUint32(40, n, true);
+    for (i = 0; i < n; i++) v.setUint8(44 + i, 128);
+    return URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
+  }
+  function unlock() {
+    if (unlocked) return; unlocked = true;
+    try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
+    try { keep = document.createElement("audio"); keep.src = silentWav(); keep.loop = true; keep.setAttribute("playsinline", ""); var pr = keep.play(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {}
+    var a = ac();
+    if (a) { var sb = a.createBufferSource(); sb.buffer = a.createBuffer(1, 1, 22050); sb.connect(a.destination); sb.start(0); }
+    setHum(playing);
+  }
+  document.addEventListener("visibilitychange", function () { if (AC && !document.hidden && AC.state !== "running") AC.resume(); });
+  ["click", "touchend", "pointerup", "keydown"].forEach(function (e) { document.addEventListener(e, unlock); });
+  icon(); go(0);
   var swiped = false, x0 = null, y0 = 0;
-  $("screen").addEventListener("click", function (e) {
+  // tap anywhere: right side = next, left third = back
+  document.addEventListener("click", function (e) {
     if (swiped) return;
     go(e.clientX < innerWidth * 0.33 ? cur - 1 : cur + 1);
   });
@@ -225,6 +211,6 @@
   document.addEventListener("keydown", function (e) {
     if (e.key === "ArrowRight") go(cur + 1);
     else if (e.key === "ArrowLeft") go(cur - 1);
-    else if (e.key === " ") { e.preventDefault(); playBtn.click(); }
+    else if (e.key === " ") { e.preventDefault(); go(cur + 1); }
   });
 })();
