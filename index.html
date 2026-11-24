@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tatayya</title>
+<meta name="theme-color" content="#0a0705">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Courier+Prime:wght@400;700&family=Hind+Guntur:wght@700&family=Oswald:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="stage">
+  <div id="screen"><div id="view"></div><div class="vig"></div><div class="grain"></div><div class="scr" id="scr"></div><div class="flash"></div></div>
+  <div id="beam"><div id="fx" aria-hidden="true"></div></div>
+  <div id="info"><p id="cp"></p><p id="cn"></p></div>
+  <div id="proj">
+    <div class="reel"></div><div class="reel b"></div>
+    <div class="body">
+      <i class="led"></i><i class="vent"></i><i class="knob"></i>
+      <div class="ctl">
+        <button id="prev" aria-label="Previous">&#8249;</button>
+        <button id="play" aria-label="Play or pause"></button>
+        <button id="next" aria-label="Next">&#8250;</button>
+        <button id="snd" aria-label="Sound on or off"></button>
+      </div>
+      <div class="ruler" id="ruler" aria-hidden="true"></div>
+    </div>
+    <div class="lamp"></div>
+  </div>
+</main>
+<script src="config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
